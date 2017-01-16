@@ -1,38 +1,41 @@
 import React, { Component } from 'react';
 
 const arr = [
-  {"name" : "a"},
-  {"name" : "a"},
-  {"name" : "a"},
-  {"name" : "a"},
-  {"name" : "a"},
-  {"name" : "a"},
-  {"name" : "a"},
-  {"name" : "a"},
-  {"name" : "a"},
-  {"name" : "a"},
-  {"name" : "a"},
-  {"name": "aa"},
-  {"name": "aa"},
-  {"name": "aa"},
-  {"name": "b"},
-  {"name": "b"}
+  {"name" : "aslam", "age": 108},
+  {"name" : "bosir", "age": 107},
+  {"name" : "chacha", "age": 106},
+  {"name" : "delwar", "age": 105},
+  {"name" : "ehsan", "age": 104},
+  {"name" : "foysal", "age": 103},
+  {"name" : "hasem", "age": 102},
+  {"name" : "gobor", "age": 101}
 ]
 
 export default class AutoSuggest extends Component {
   constructor(props) {
     super(props);
     this.handleChange = this.handleChange.bind(this);
+    this.handleSelect = this.handleSelect.bind(this);
 
     this.state = {
-      result: []
+      result: [],
+      selected: {}
     }
   }
 
   handleChange(e) {
     this.setState({
-      result: arr.filter(x => x.name === e.target.value)
+      result: arr.filter(x => x.name.includes(e.target.value))
     })
+  }
+
+  handleSelect(product) {
+    this.setState({
+      result: [],
+      selected: product
+    });
+
+    this.term.value = product.name;
   }
 
   render() {
@@ -42,7 +45,12 @@ export default class AutoSuggest extends Component {
         <div className="josim">
           {
             this.state.result.map(
-              (x,index) => <div className="item" key={index}>{x.name}</div>
+              (x,index) => <div
+                             className="item"
+                             onClick={() => this.handleSelect(x)}
+                             key={index}>
+                             {x.name}
+                           </div>
             )
           }
         </div>
@@ -51,8 +59,13 @@ export default class AutoSuggest extends Component {
 
     return(
       <div>
-        <input onChange={this.handleChange} />
+        <input
+          type="text"
+          ref={input => this.term = input}
+          defaultValue={this.state.selected.name}
+          onChange={this.handleChange} />
         {resultDiv}
+        <p>hello</p>
       </div>
     );
   }

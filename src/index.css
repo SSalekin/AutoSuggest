@@ -6,8 +6,10 @@ body {
 
 .josim {
   width: 170px;
-  /*background: #eee;*/
+  background: #fff;
   border: 1px solid #ddd;
+  position: fixed;
+  z-index: 100;
 }
 
 .item:hover {
