@@ -16,6 +16,7 @@ export default class AutoSuggest extends Component {
     super(props);
     this.handleChange = this.handleChange.bind(this);
     this.handleSelect = this.handleSelect.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this);
 
     this.state = {
       result: [],
@@ -24,9 +25,22 @@ export default class AutoSuggest extends Component {
   }
 
   handleChange(e) {
-    this.setState({
-      result: arr.filter(x => x.name.includes(e.target.value))
-    })
+    if(e.target.value !== "") {
+      this.setState({
+        result: arr.filter(x => x.name.includes(e.target.value))
+      })
+    } else {
+      this.setState({
+        result: []
+      });
+    }
+  }
+
+  handleSubmit(e) {
+    e.preventDefault();
+    if(e.target.value !== "") {
+      this.handleSelect(this.state.result[0]);
+    }
   }
 
   handleSelect(product) {
@@ -58,7 +72,7 @@ export default class AutoSuggest extends Component {
     }
 
     return(
-      <div>
+      <form onSubmit={this.handleSubmit}>
         <input
           type="text"
           ref={input => this.term = input}
@@ -66,7 +80,7 @@ export default class AutoSuggest extends Component {
           onChange={this.handleChange} />
         {resultDiv}
         <p>hello</p>
-      </div>
+      </form>
     );
   }
 }
