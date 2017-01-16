@@ -1,0 +1,15 @@
+body {
+  margin: 0;
+  padding: 0;
+  font-family: sans-serif;
+}
+
+.josim {
+  width: 170px;
+  /*background: #eee;*/
+  border: 1px solid #ddd;
+}
+
+.item:hover {
+  background: #eee
+}
