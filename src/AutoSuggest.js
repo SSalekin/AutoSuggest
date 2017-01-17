@@ -1,15 +1,6 @@
 import React, { Component } from 'react';
-
-const arr = [
-  {"name" : "aslam", "age": 108},
-  {"name" : "bosir", "age": 107},
-  {"name" : "chacha", "age": 106},
-  {"name" : "delwar", "age": 105},
-  {"name" : "ehsan", "age": 104},
-  {"name" : "foysal", "age": 103},
-  {"name" : "hasem", "age": 102},
-  {"name" : "gobor", "age": 101}
-]
+import _ from 'lodash';
+import axios from 'axios';
 
 export default class AutoSuggest extends Component {
   constructor(props) {
@@ -17,23 +8,49 @@ export default class AutoSuggest extends Component {
     this.handleChange = this.handleChange.bind(this);
     this.handleSelect = this.handleSelect.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
+    this.getResult = this.getResult.bind(this);
+    this.handleFormClear = this.handleFormClear.bind(this);
+    this.toggleVisibility = this.toggleVisibility.bind(this);
 
     this.state = {
       result: [],
-      selected: {}
+      selected: {},
+      visibility : false
     }
   }
 
+  handleFormClear() {
+    this.setState({
+      result: [],
+      selected: {},
+      visibility: false
+    });
+
+    this.term.value = "";
+  }
+
   handleChange(e) {
-    if(e.target.value !== "") {
-      this.setState({
-        result: arr.filter(x => x.name.includes(e.target.value))
-      })
-    } else {
-      this.setState({
-        result: []
-      });
+    if(e.target.value !== "" ) {
+      this.getResult(e.target.value)
     }
+  }
+
+  getResult(param) {
+    let config = {
+      headers: {'Authorization': '4cc47fe3-a711-4932-90fd-ceb27dd94e42'}
+    };
+
+    axios.get(
+      `http://192.168.1.230:9000/product/searchProductByName/${param}`,
+      config
+    ).then(
+      response => {
+        this.setState({
+          result: response.data.data,
+          visibility: true
+        })
+      }
+    )
   }
 
   handleSubmit(e) {
@@ -43,28 +60,46 @@ export default class AutoSuggest extends Component {
     }
   }
 
-  handleSelect(product) {
+  handleSelect(item) {
     this.setState({
-      result: [],
-      selected: product
+      visibility : false,
+      selected: item
     });
 
-    this.term.value = product.name;
+    this.term.value = item.productName;
+  }
+
+  toggleVisibility(){
+    if(!this.state.visibility) {
+      this.setState({
+        visibility: true
+      })
+    }
   }
 
   render() {
     let resultDiv;
-    if(this.state.result.length !== 0) {
+    if(this.state.result.length !== 0 && this.state.visibility) {
       resultDiv = (
-        <div className="josim">
+        <div className="suggestion-list">
           {
             this.state.result.map(
-              (x,index) => <div
-                             className="item"
-                             onClick={() => this.handleSelect(x)}
-                             key={index}>
-                             {x.name}
-                           </div>
+              (item, index) => (
+                <div
+                  className="item"
+                  onClick={() => this.handleSelect(item)}
+                  key={index}>
+                  <div>
+                    <span className="item-name">
+                      {item.productName}
+                    </span>
+                    <br />
+                    <span className="item-detail">
+                      <code>{item.productId}</code>
+                    </span>
+                  </div>
+                </div>
+              )
             )
           }
         </div>
@@ -72,14 +107,21 @@ export default class AutoSuggest extends Component {
     }
 
     return(
-      <form onSubmit={this.handleSubmit}>
-        <input
-          type="text"
-          ref={input => this.term = input}
-          defaultValue={this.state.selected.name}
-          onChange={this.handleChange} />
-        {resultDiv}
-        <p>hello</p>
+      <form className="autosuggest-div" onSubmit={this.handleSubmit}>
+        <div className="form-group has-feedback">
+          <input
+            type="text"
+            placeholder="type to search"
+            onClick={this.toggleVisibility}
+            className="form-control"
+            ref={input => this.term = input}
+            defaultValue={this.state.selected.productName}
+            onChange={this.handleChange} />
+          <span
+            className="close-icon"
+            onClick={this.handleFormClear} />
+          {resultDiv}
+        </div>
       </form>
     );
   }
